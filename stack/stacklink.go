@@ -10,7 +10,8 @@ type Node struct {
 
 // StackLink链接栈
 type StackLink struct {
-	top *Node
+	top    *Node
+	length int
 }
 
 // InitStack 初始化一个栈，栈先进后出
@@ -25,6 +26,7 @@ func (s *StackLink) Push(data Elem) {
 	node.data = data
 	node.next = s.top
 	s.top = node
+	s.length++
 }
 
 // Pop 弹出一个元素
@@ -36,17 +38,17 @@ func (s *StackLink) Pop(e *Elem) error {
 	*e = s.top.data
 	node := s.top
 	s.top = node.next
-	// 释放内存空间
+	s.length--
 
 	return nil
-}
-
-// GetTop 获得栈顶元素
-func (s *StackLink) GetTop(node *Node) {
-	node = s.top
 }
 
 // Empty 是否为空栈
 func (s *StackLink) Empty() bool {
 	return s.top == nil
+}
+
+// Length 栈的元素个数
+func (s *StackLink) Length() int {
+	return s.length
 }
