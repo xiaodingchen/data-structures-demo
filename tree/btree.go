@@ -1,6 +1,7 @@
 package tree
 
 import (
+	"container/list"
 	"math"
 )
 
@@ -46,6 +47,58 @@ func (b *binaryTree) Root() *TreeNode {
 	return b.root
 }
 
+// 先序遍历,把结果保存到链表里
+func (b *binaryTree) PreOrder() *list.List {
+	traversal := list.New()
+	preOrder(b.root, traversal)
+
+	return traversal
+}
+
+// 先序遍历，先遍历根节点，然后遍历左子树，后遍历右子树
+func preOrder(root *TreeNode, l *list.List) {
+	if root == nil {
+		return
+	}
+	l.PushBack(root)
+	preOrder(root.GetLChild(), l)
+	preOrder(root.GetRChild(), l)
+}
+
+// 中序遍历，先遍历左子树，然后遍历根节点，然后遍历右子树
+func (b *binaryTree) InOrder() *list.List {
+	traversal := list.New()
+	inOrder(b.root, traversal)
+
+	return traversal
+}
+
+func inOrder(root *TreeNode, l *list.List) {
+	if root == nil {
+		return
+	}
+	inOrder(root.GetLChild(), l)
+	l.PushBack(root)
+	inOrder(root.GetRChild(), l)
+}
+
+// 后序遍历，先遍历左子树，然后遍历右子树，最后遍历根节点
+func (b *binaryTree) PostOrder() *list.List {
+	traversal := list.New()
+	postOrder(b.root, traversal)
+	return traversal
+}
+
+func postOrder(root *TreeNode, l *list.List) {
+	if root == nil {
+		return
+	}
+
+	postOrder(root.GetLChild(), l)
+	postOrder(root.GetRChild(), l)
+	l.PushBack(root)
+}
+
 // 获取第一个与数据e相等的节点
 func (b *binaryTree) Find(e interface{}) *TreeNode {
 	if b.Empty() {
@@ -81,7 +134,7 @@ func isEqual(e interface{}, node *TreeNode) *TreeNode {
 
 // NewBiTreeNode 新建一个树节点
 func NewBiTreeNode(e interface{}) *TreeNode {
-	return &TreeNode{data: e}
+	return &TreeNode{data: e, size: 1}
 }
 
 // GetData 获取节点数据
@@ -180,7 +233,7 @@ func (t *TreeNode) SetRChild(r *TreeNode) *TreeNode {
 
 // IsLeaf 判断是否为叶子节点
 func (t *TreeNode) IsLeaf() bool {
-	return !t.IsLChild() && !t.IsRChild()
+	return !t.HasLChild() && !t.HasRChild()
 }
 
 // CutParent 断开与父节点的关系
@@ -199,11 +252,11 @@ func (t *TreeNode) CutParent() {
 		t.parent.rchild = nil
 	}
 
+	// 断开该节点与父节点的联系
+	t.parent = nil
 	// 重新计算当前节点的父节点的高度和长度
 	t.parent.SetSize()
 	t.parent.SetHeight()
-	// 断开该节点与父节点的联系
-	t.parent = nil
 
 }
 
@@ -228,11 +281,11 @@ func (t *TreeNode) SetSize() {
 func (t *TreeNode) SetHeight() {
 	newH := 0 // 新高度初始化为0，高度等于左右子树高度加1中的最大者
 	if t.HasLChild() {
-		newH = int(math.Max(float64(newH), float64(t.GetLChild().GetHeight())))
+		newH = int(math.Max(float64(newH), float64(1+t.GetLChild().GetHeight())))
 	}
 
 	if t.HasRChild() {
-		newH = int(math.Max(float64(newH), float64(t.GetRChild().GetHeight())))
+		newH = int(math.Max(float64(newH), float64(1+t.GetRChild().GetHeight())))
 	}
 
 	if newH == t.height {
